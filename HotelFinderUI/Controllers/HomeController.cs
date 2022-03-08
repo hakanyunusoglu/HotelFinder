@@ -77,10 +77,18 @@ namespace HotelFinderUI.Controllers
 
         public IActionResult Delete(int id)
         {
-            HttpClient client = new HttpClient();
-            client.BaseAddress = new Uri("https://localhost:44318/api/");
-            var result = client.DeleteAsync("Hotels" + "/" + id).Result;
-            return RedirectToAction("Index");
+            var client = new HttpClient();
+            var responsetask = client.DeleteAsync("https://localhost:44318/api/Hotels/" + id);
+            var result = responsetask.Result;
+            if(result.IsSuccessStatusCode)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+            return NotFound();
+            //HttpClient client = new HttpClient();
+            //client.BaseAddress = new Uri("https://localhost:44318/api/");
+            //var result = client.DeleteAsync("Hotels" + "/" + id).Result;
+            //return RedirectToAction("Index");
             
         }
         [HttpGet]
@@ -136,7 +144,12 @@ namespace HotelFinderUI.Controllers
             var stringContent = new StringContent(JsonConvert.SerializeObject(hotel), Encoding.UTF8, "application/json");
             var result = client.PostAsync("Hotels", stringContent);
             result.Wait();
-            return RedirectToAction("Index","Home");
+            var resultstatus = result.Result;
+            if(resultstatus.IsSuccessStatusCode)
+            {
+                return RedirectToAction("Index","Home");
+            }            
+            return View(hotel);
         }
 
 
